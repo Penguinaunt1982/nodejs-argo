@@ -32,17 +32,24 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # --- 新增步骤：把用户名转为小写 (Fix Uppercase Error) ---
+      - name: Lowercase the repo owner
+        run: echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+        env:
+          OWNER: '${{ github.repository_owner }}'
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           platforms: linux/amd64,linux/arm64
+          # --- 修改点：使用转小写后的变量 ---
           tags: |
-            ghcr.io/${{ github.repository_owner }}/nodejs:latest
+            ghcr.io/${{ env.OWNER_LC }}/north:2026
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.description=HTTP Server
             org.opencontainers.image.licenses=MIT
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=maxtype=gha,mode=max
